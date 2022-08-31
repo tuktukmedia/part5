@@ -1,14 +1,17 @@
 import { useState, useEffect } from 'react'
 import Blog from './components/Blog'
+import LoginForm from './components/LoginForm'
 import blogService from './services/blogs'
 import loginService from './services/login'
+import Notification from './components/Notification'
+import CreateForm from './components/CreateForm'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
   const [user, setUser] = useState(null)
   const [password, setPassword] = useState('')
   const [username, setUsername] = useState('')
-  const [errorMessage, setErrorMessage] = useState('')
+  const [notification, setNotification] = useState(null)
 
   useEffect(() => {
     blogService.getAll().then(blogs => setBlogs(blogs))
@@ -19,7 +22,7 @@ const App = () => {
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON)
       setUser(user)
-      //noteService.setToken(user.token)
+      blogService.setToken(user.token)
     }
   }, [])
 
@@ -30,60 +33,71 @@ const App = () => {
 
       window.localStorage.setItem('loggedBlogappUser', JSON.stringify(user))
       setUser(user)
+      blogService.setToken(user.token)
+
       setPassword('')
       setUsername('')
     } catch (exception) {
-      setErrorMessage('Wrong credentials')
-      setTimeout(() => {
-        setErrorMessage('')
-      }, 4000)
+      notify('Wrong username or password', 'alert')
     }
   }
 
-  const handleLogout = async event => {
+  const handleLogout = () => {
     window.localStorage.removeItem('loggedBlogappUser')
     setUser(null)
   }
 
-  const loginForm = () => (
-    <form onSubmit={handleLogin}>
-      username
-      <input
-        value={username}
-        type='text'
-        name='Username'
-        onChange={({ target }) => setUsername(target.value)}
-      />
-      <br />
-      password
-      <input
-        value={password}
-        type='password'
-        name='password'
-        onChange={({ target }) => setPassword(target.value)}
-      />
-      <br />
-      <button type='submit'>login</button>
-      <p>{errorMessage}</p>
-    </form>
-  )
+  const blogList = () => {
+    let sortedBlogs = blogs.sort((a, b) => b.likes - a.likes)
 
-  const blogList = () => blogs.map(blog => <Blog key={blog.id} blog={blog} />)
+    return sortedBlogs.map(blog => (
+      <Blog
+        key={blog.id}
+        blog={blog}
+        blogs={blogs}
+        setBlogs={setBlogs}
+        notify={notify}
+        user={user}
+      />
+    ))
+  }
+
+  const notify = (message, type = 'info') => {
+    setNotification({ message, type })
+    setTimeout(() => {
+      setNotification(null)
+    }, 3000)
+  }
 
   return (
     <div>
       {user !== null ? (
         <div>
           <h2>blogs</h2>
+          <Notification notification={notification} />
           <p>
             {user.name} logged in <button onClick={handleLogout}>logout</button>
           </p>
+          <CreateForm
+            blogService={blogService}
+            blogs={blogs}
+            setBlogs={setBlogs}
+            notify={notify}
+          />
           {blogList()}
         </div>
       ) : (
         <div>
           <h2>Log in to application</h2>
-          {loginForm()}
+          <Notification notification={notification} />
+
+          <LoginForm
+            username={username}
+            password={password}
+            handleLogin={handleLogin}
+            setPassword={setPassword}
+            setUsername={setUsername}
+          />
         </div>
       )}
     </div>
