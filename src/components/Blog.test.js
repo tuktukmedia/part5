@@ -76,9 +76,7 @@ test('clicking the like button calls event handler once', async () => {
 
   const mockHandler = jest.fn()
 
-  const container = render(
-    <Blog blog={blog} user={user} handleLike={mockHandler} />
-  )
+  render(<Blog blog={blog} user={user} handleLike={mockHandler} />)
 
   const testuser = userEvent.setup()
   const viewButton = screen.getByText('view')

@@ -23,7 +23,9 @@ const CreateForm = ({ handleCreate }) => {
   return (
     <>
       <div style={hideWhenVisible}>
-        <button onClick={() => setVisible(true)}>new blog</button>
+        <button onClick={() => setVisible(true)} id='newBlog'>
+          new blog
+        </button>
       </div>
       <div style={showWhenVisible}>
         <div>
@@ -56,7 +58,9 @@ const CreateForm = ({ handleCreate }) => {
               onChange={({ target }) => setUrl(target.value)}
             />
             <br />
-            <button type='submit'>create</button>
+            <button type='submit' id='create-button'>
+              create
+            </button>
           </form>
         </div>
         <button onClick={() => setVisible(false)}>cancel</button>

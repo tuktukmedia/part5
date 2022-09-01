@@ -42,11 +42,11 @@ const Blog = ({ blog, notify, blogs, setBlogs, user, handleLike }) => {
       <div>
         {blog.title} - {blog.author}
         {viewDetails ? (
-          <button style={buttonStyle} onClick={handleView}>
+          <button style={buttonStyle} onClick={handleView} id='hide-button'>
             hide
           </button>
         ) : (
-          <button style={buttonStyle} onClick={handleView}>
+          <button style={buttonStyle} onClick={handleView} id='view-button'>
             view
           </button>
         )}
@@ -56,12 +56,16 @@ const Blog = ({ blog, notify, blogs, setBlogs, user, handleLike }) => {
           {blog.url}
           <br />
           likes {blog.likes}{' '}
-          <button onClick={() => handleLike(blog)}>like</button>
+          <button onClick={() => handleLike(blog)} id='like-button'>
+            like
+          </button>
           <br />
           {blog.user.name}
           <br />
           {blog.user.id === user.id ? (
-            <button onClick={handleRemove}>remove</button>
+            <button onClick={handleRemove} id='remove-button'>
+              remove
+            </button>
           ) : (
             ''
           )}
