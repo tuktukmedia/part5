@@ -2,7 +2,7 @@ import { useState } from 'react'
 import blogService from '../services/blogs'
 import PropTypes from 'prop-types'
 
-const Blog = ({ blog, notify, blogs, setBlogs, user }) => {
+const Blog = ({ blog, notify, blogs, setBlogs, user, handleLike }) => {
   const [viewDetails, setViewDetails] = useState(false)
 
   const blogStyle = {
@@ -14,29 +14,6 @@ const Blog = ({ blog, notify, blogs, setBlogs, user }) => {
 
   const buttonStyle = {
     marginLeft: 10
-  }
-
-  const handleLike = async event => {
-    event.preventDefault()
-    const newLikes = blog.likes + 1
-
-    const updateBlog = {
-      title: blog.title,
-      author: blog.author,
-      url: blog.url,
-      likes: newLikes,
-      user: blog.user.id
-    }
-    try {
-      const updateLikes = await blogService.update(blog.id, updateBlog)
-
-      const updateBlogs = blogs.map(blog =>
-        blog.id === updateLikes.id ? updateLikes : blog
-      )
-      setBlogs(updateBlogs)
-    } catch (exception) {
-      notify('something went wrong with likes', 'alert')
-    }
   }
 
   const handleRemove = async event => {
@@ -55,16 +32,21 @@ const Blog = ({ blog, notify, blogs, setBlogs, user }) => {
     }
   }
 
+  const handleView = event => {
+    event.preventDefault()
+    setViewDetails(!viewDetails)
+  }
+
   return (
-    <div style={blogStyle}>
+    <div style={blogStyle} className='blog'>
       <div>
         {blog.title} - {blog.author}
         {viewDetails ? (
-          <button style={buttonStyle} onClick={() => setViewDetails(false)}>
+          <button style={buttonStyle} onClick={handleView}>
             hide
           </button>
         ) : (
-          <button style={buttonStyle} onClick={() => setViewDetails(true)}>
+          <button style={buttonStyle} onClick={handleView}>
             view
           </button>
         )}
@@ -73,7 +55,8 @@ const Blog = ({ blog, notify, blogs, setBlogs, user }) => {
         <div>
           {blog.url}
           <br />
-          likes {blog.likes} <button onClick={handleLike}>like</button>
+          likes {blog.likes}{' '}
+          <button onClick={() => handleLike(blog)}>like</button>
           <br />
           {blog.user.name}
           <br />

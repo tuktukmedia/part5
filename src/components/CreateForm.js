@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-const CreateForm = ({ blogService, blogs, setBlogs, notify }) => {
+const CreateForm = ({ handleCreate }) => {
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
   const [url, setUrl] = useState('')
@@ -9,25 +9,15 @@ const CreateForm = ({ blogService, blogs, setBlogs, notify }) => {
   const hideWhenVisible = { display: visible ? 'none' : '' }
   const showWhenVisible = { display: visible ? '' : 'none' }
 
-  const handleCreate = async event => {
+  const handleSubmit = async event => {
     event.preventDefault()
+    const newBlog = { title: title, author: author, url: url }
+    handleCreate(newBlog)
 
-    try {
-      const newBlog = { title: title, author: author, url: url }
-      const createBlog = await blogService.create(newBlog)
-      console.log('🚀 ~ handleCreate ~ createBlog', createBlog)
-      setTitle('')
-      setAuthor('')
-      setUrl('')
-      setBlogs(blogs.concat(createBlog))
-      setVisible(false)
-      notify(
-        `a new blog ${createBlog.title} by ${createBlog.author} added`,
-        'info'
-      )
-    } catch (exception) {
-      notify('Problem creating blog', 'alert')
-    }
+    setTitle('')
+    setAuthor('')
+    setUrl('')
+    setVisible(false)
   }
 
   return (
@@ -38,12 +28,13 @@ const CreateForm = ({ blogService, blogs, setBlogs, notify }) => {
       <div style={showWhenVisible}>
         <div>
           <h2>create new</h2>
-          <form onSubmit={handleCreate}>
+          <form onSubmit={handleSubmit}>
             title
             <input
               type='text'
               value={title}
               name='title'
+              id='title'
               onChange={({ target }) => setTitle(target.value)}
             />
             <br />
@@ -52,6 +43,7 @@ const CreateForm = ({ blogService, blogs, setBlogs, notify }) => {
               type='text'
               value={author}
               name='author'
+              id='author'
               onChange={({ target }) => setAuthor(target.value)}
             />
             <br />
@@ -60,6 +52,7 @@ const CreateForm = ({ blogService, blogs, setBlogs, notify }) => {
               type='text'
               value={url}
               name='url'
+              id='url'
               onChange={({ target }) => setUrl(target.value)}
             />
             <br />

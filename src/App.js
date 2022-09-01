@@ -23,6 +23,7 @@ const App = () => {
       const user = JSON.parse(loggedUserJSON)
       setUser(user)
       blogService.setToken(user.token)
+      console.log(user)
     }
   }, [])
 
@@ -58,8 +59,30 @@ const App = () => {
         setBlogs={setBlogs}
         notify={notify}
         user={user}
+        handleLike={handleLike}
       />
     ))
+  }
+  const handleLike = async blog => {
+    const newLikes = blog.likes + 1
+
+    const updateBlog = {
+      title: blog.title,
+      author: blog.author,
+      url: blog.url,
+      likes: newLikes,
+      user: blog.user.id
+    }
+    try {
+      const updateLikes = await blogService.update(blog.id, updateBlog)
+
+      const updateBlogs = blogs.map(blog =>
+        blog.id === updateLikes.id ? updateLikes : blog
+      )
+      setBlogs(updateBlogs)
+    } catch (exception) {
+      notify('something went wrong with likes', 'alert')
+    }
   }
 
   const notify = (message, type = 'info') => {
@@ -68,7 +91,20 @@ const App = () => {
       setNotification(null)
     }, 3000)
   }
+  const handleCreate = async newBlog => {
+    try {
+      const createBlog = await blogService.create(newBlog)
+      console.log('🚀 ~ handleCreate ~ createBlog', createBlog)
 
+      setBlogs(blogs.concat(createBlog))
+      notify(
+        `a new blog ${createBlog.title} by ${createBlog.author} added`,
+        'info'
+      )
+    } catch (exception) {
+      notify('Problem creating blog', 'alert')
+    }
+  }
   return (
     <div>
       {user !== null ? (
@@ -78,12 +114,7 @@ const App = () => {
           <p>
             {user.name} logged in <button onClick={handleLogout}>logout</button>
           </p>
-          <CreateForm
-            blogService={blogService}
-            blogs={blogs}
-            setBlogs={setBlogs}
-            notify={notify}
-          />
+          <CreateForm handleCreate={handleCreate} />
           {blogList()}
         </div>
       ) : (
